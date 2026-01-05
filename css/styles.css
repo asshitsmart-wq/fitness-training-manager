@@ -1,0 +1,162 @@
+/* Base styling using CSS variables for themes */
+:root {
+  --bg-color: #ffffff;
+  --fg-color: #333333;
+  --accent-color: #2a9d8f;
+  --nav-bg: #f0f0f0;
+  --nav-fg: #333333;
+  --border-color: #dddddd;
+}
+
+/* Dark theme override */
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --fg-color: #e0e0e0;
+  --accent-color: #e76f51;
+  --nav-bg: #1e1e1e;
+  --nav-fg: #e0e0e0;
+  --border-color: #333333;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: var(--bg-color);
+  color: var(--fg-color);
+}
+
+header {
+  background-color: var(--nav-bg);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+#main-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  color: var(--nav-fg);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+main {
+  padding: 1rem;
+}
+
+.content-section {
+  display: none;
+}
+
+.content-section.active {
+  display: block;
+}
+
+form {
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: var(--nav-bg);
+}
+
+.form-row {
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 0.25rem;
+}
+
+input,
+select {
+  padding: 0.4rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-color);
+  color: var(--fg-color);
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--accent-color);
+  color: #fff;
+  margin-top: 0.5rem;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+#clients-list,
+#programs-list,
+#exercises-list,
+#progress-records,
+#calendar-events {
+  border: 1px solid var(--border-color);
+  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: var(--nav-bg);
+}
+
+/* Simple list styling */
+.list-item {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item button {
+  margin-left: 0.5rem;
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+footer {
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--nav-bg);
+}
+
+/* Right-to-left support */
+[dir="rtl"] {
+  direction: rtl;
+}
+[dir="rtl"] header {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] #main-nav {
+  flex-direction: row-reverse;
+}

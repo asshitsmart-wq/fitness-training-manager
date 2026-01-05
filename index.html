@@ -4,136 +4,190 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fitness Training Manager</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="css/styles.css" />
   <!-- We include our JavaScript after the HTML so that the DOM is ready -->
   <script defer src="js/app.js"></script>
 </head>
 <body>
-  <header>
-    <h1 id="app-title">Fitness Training Manager</h1>
-    <nav id="main-nav">
-      <button class="nav-btn" data-target="clients">Clients</button>
-      <button class="nav-btn" data-target="programs">Programs</button>
-      <button class="nav-btn" data-target="exercises">Exercises</button>
-      <button class="nav-btn" data-target="progress">Progress</button>
-      <button class="nav-btn" data-target="calendar">Calendar</button>
-      <button class="nav-btn" data-target="settings">Settings</button>
-    </nav>
+  <header class="app-header">
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">FT</div>
+        <div>
+          <h1 id="app-title">Fitness Training Manager</h1>
+          <p class="tagline">Plan, track, and coach with confidence.</p>
+        </div>
+      </div>
+      <nav id="main-nav" aria-label="Primary">
+        <button class="nav-btn" data-target="clients">Clients</button>
+        <button class="nav-btn" data-target="programs">Programs</button>
+        <button class="nav-btn" data-target="exercises">Exercises</button>
+        <button class="nav-btn" data-target="progress">Progress</button>
+        <button class="nav-btn" data-target="calendar">Calendar</button>
+        <button class="nav-btn" data-target="settings">Settings</button>
+      </nav>
+    </div>
   </header>
-  <main id="content">
+  <main id="content" class="page-content">
     <!-- Clients section -->
     <section id="clients" class="content-section">
-      <h2>Clients</h2>
-      <form id="client-form">
-        <div class="form-row">
-          <label for="client-name">Name</label>
-          <input type="text" id="client-name" required />
+      <div class="section-header">
+        <div>
+          <h2>Clients</h2>
+          <p>Maintain profiles and quick reference details for every client.</p>
         </div>
-        <div class="form-row">
-          <label for="client-age">Age</label>
-          <input type="number" id="client-age" min="0" />
-        </div>
-        <div class="form-row">
-          <label for="client-weight">Weight (kg)</label>
-          <input type="number" id="client-weight" min="0" />
-        </div>
-        <button type="submit">Add Client</button>
-      </form>
-      <div id="clients-list"></div>
+      </div>
+      <div class="section-grid">
+        <form id="client-form" class="card">
+          <div class="form-row">
+            <label for="client-name">Name</label>
+            <input type="text" id="client-name" required placeholder="e.g. Taylor Miles" />
+          </div>
+          <div class="form-row">
+            <label for="client-age">Age</label>
+            <input type="number" id="client-age" min="0" placeholder="e.g. 32" />
+          </div>
+          <div class="form-row">
+            <label for="client-weight">Weight (kg)</label>
+            <input type="number" id="client-weight" min="0" placeholder="e.g. 78" />
+          </div>
+          <button type="submit">Add Client</button>
+        </form>
+        <div class="card" id="clients-list"></div>
+      </div>
     </section>
     <!-- Programs section -->
     <section id="programs" class="content-section hidden">
-      <h2>Programs</h2>
-      <form id="program-form">
-        <div class="form-row">
-          <label for="program-name">Program Name</label>
-          <input type="text" id="program-name" required />
+      <div class="section-header">
+        <div>
+          <h2>Programs</h2>
+          <p>Build repeatable training plans with ready-to-go exercise lists.</p>
         </div>
-        <div class="form-row">
-          <label for="program-exercises">Exercises (comma separated)</label>
-          <input type="text" id="program-exercises" placeholder="e.g. Squat, Push-up" />
-        </div>
-        <button type="submit">Add Program</button>
-      </form>
-      <div id="programs-list"></div>
+      </div>
+      <div class="section-grid">
+        <form id="program-form" class="card">
+          <div class="form-row">
+            <label for="program-name">Program Name</label>
+            <input type="text" id="program-name" required placeholder="e.g. Strength Phase 1" />
+          </div>
+          <div class="form-row">
+            <label for="program-exercises">Exercises (comma separated)</label>
+            <input type="text" id="program-exercises" placeholder="Squat, Deadlift, Bench Press" />
+          </div>
+          <button type="submit">Add Program</button>
+        </form>
+        <div class="card" id="programs-list"></div>
+      </div>
     </section>
     <!-- Exercises section -->
     <section id="exercises" class="content-section hidden">
-      <h2>Exercise Library</h2>
-      <form id="exercise-form">
-        <div class="form-row">
-          <label for="exercise-name">Exercise Name</label>
-          <input type="text" id="exercise-name" required />
+      <div class="section-header">
+        <div>
+          <h2>Exercise Library</h2>
+          <p>Track the exercise catalog you can reuse across programs.</p>
         </div>
-        <div class="form-row">
-          <label for="exercise-muscle">Target Muscle Group</label>
-          <input type="text" id="exercise-muscle" placeholder="e.g. Chest, Back" />
-        </div>
-        <button type="submit">Add Exercise</button>
-      </form>
-      <div id="exercises-list"></div>
+      </div>
+      <div class="section-grid">
+        <form id="exercise-form" class="card">
+          <div class="form-row">
+            <label for="exercise-name">Exercise Name</label>
+            <input type="text" id="exercise-name" required placeholder="e.g. Romanian Deadlift" />
+          </div>
+          <div class="form-row">
+            <label for="exercise-muscle">Target Muscle Group</label>
+            <input type="text" id="exercise-muscle" placeholder="e.g. Hamstrings" />
+          </div>
+          <button type="submit">Add Exercise</button>
+        </form>
+        <div class="card" id="exercises-list"></div>
+      </div>
     </section>
     <!-- Progress section -->
     <section id="progress" class="content-section hidden">
-      <h2>Progress Tracking</h2>
-      <p>Select a client to view and record progress:</p>
-      <select id="progress-client-select"></select>
-      <form id="progress-form">
-        <div class="form-row">
-          <label for="progress-date">Date</label>
-          <input type="date" id="progress-date" required />
+      <div class="section-header">
+        <div>
+          <h2>Progress Tracking</h2>
+          <p>Record measurements and quickly review client trends.</p>
         </div>
-        <div class="form-row">
-          <label for="progress-weight">Weight (kg)</label>
-          <input type="number" id="progress-weight" min="0" />
+      </div>
+      <div class="section-grid">
+        <div class="card">
+          <label class="stack" for="progress-client-select">Select a client to view and record progress:</label>
+          <select id="progress-client-select"></select>
+          <form id="progress-form" class="nested-form">
+            <div class="form-row">
+              <label for="progress-date">Date</label>
+              <input type="date" id="progress-date" required />
+            </div>
+            <div class="form-row">
+              <label for="progress-weight">Weight (kg)</label>
+              <input type="number" id="progress-weight" min="0" placeholder="e.g. 76.5" />
+            </div>
+            <button type="submit">Record Progress</button>
+          </form>
         </div>
-        <button type="submit">Record Progress</button>
-      </form>
-      <div id="progress-records"></div>
+        <div class="card" id="progress-records"></div>
+      </div>
     </section>
     <!-- Calendar section -->
     <section id="calendar" class="content-section hidden">
-      <h2>Calendar</h2>
-      <p>Add scheduled sessions:</p>
-      <form id="calendar-form">
-        <div class="form-row">
-          <label for="calendar-client">Client</label>
-          <select id="calendar-client"></select>
+      <div class="section-header">
+        <div>
+          <h2>Calendar</h2>
+          <p>Keep a single, shareable schedule for every session.</p>
         </div>
-        <div class="form-row">
-          <label for="calendar-date">Date & Time</label>
-          <input type="datetime-local" id="calendar-date" required />
-        </div>
-        <div class="form-row">
-          <label for="calendar-note">Note</label>
-          <input type="text" id="calendar-note" />
-        </div>
-        <button type="submit">Add Session</button>
-      </form>
-      <div id="calendar-events"></div>
+      </div>
+      <div class="section-grid">
+        <form id="calendar-form" class="card">
+          <div class="form-row">
+            <label for="calendar-client">Client</label>
+            <select id="calendar-client"></select>
+          </div>
+          <div class="form-row">
+            <label for="calendar-date">Date & Time</label>
+            <input type="datetime-local" id="calendar-date" required />
+          </div>
+          <div class="form-row">
+            <label for="calendar-note">Note</label>
+            <input type="text" id="calendar-note" placeholder="e.g. Strength check-in" />
+          </div>
+          <button type="submit">Add Session</button>
+        </form>
+        <div class="card" id="calendar-events"></div>
+      </div>
     </section>
     <!-- Settings section -->
     <section id="settings" class="content-section hidden">
-      <h2>Settings</h2>
-      <div class="setting-group">
-        <h3>Theme</h3>
-        <select id="theme-select">
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
+      <div class="section-header">
+        <div>
+          <h2>Settings</h2>
+          <p>Make the app your own and protect client data.</p>
+        </div>
       </div>
-      <div class="setting-group">
-        <h3>Language</h3>
-        <select id="language-select">
-          <option value="en">English</option>
-          <option value="fa">فارسی</option>
-        </select>
-      </div>
-      <div class="setting-group">
-        <h3>Data</h3>
-        <button id="backup-btn">Backup Data</button>
-        <input type="file" id="restore-file" accept="application/json" />
-        <button id="restore-btn">Restore Data</button>
+      <div class="section-grid single">
+        <div class="card setting-group">
+          <h3>Theme</h3>
+          <select id="theme-select">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+        <div class="card setting-group">
+          <h3>Language</h3>
+          <select id="language-select">
+            <option value="en">English</option>
+            <option value="fa">فارسی</option>
+          </select>
+        </div>
+        <div class="card setting-group">
+          <h3>Data</h3>
+          <p class="muted">Export a backup or restore data from a previous export.</p>
+          <button id="backup-btn">Backup Data</button>
+          <input type="file" id="restore-file" accept="application/json" />
+          <button id="restore-btn">Restore Data</button>
+        </div>
       </div>
     </section>
   </main>

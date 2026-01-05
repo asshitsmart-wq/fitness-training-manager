@@ -52,7 +52,13 @@ const translations = {
     age: 'Age',
     weightField: 'Weight (kg)',
     name: 'Name',
-    export: 'Export'
+    export: 'Export',
+    noClients: 'No clients yet. Add your first client to get started.',
+    noPrograms: 'No programs yet. Build your first program.',
+    noExercises: 'No exercises yet. Create a few exercise templates.',
+    noRecords: 'No records yet.',
+    noEvents: 'No events scheduled.',
+    selectClientHelper: 'Select a client to view and record progress:'
   },
   fa: {
     title: 'مدیر تمرین تناسب اندام',
@@ -84,9 +90,59 @@ const translations = {
     age: 'سن',
     weightField: 'وزن (کیلوگرم)',
     name: 'نام',
-    export: 'صدور'
+    export: 'صدور',
+    noClients: 'هنوز مراجعه‌کننده‌ای اضافه نشده است.',
+    noPrograms: 'هنوز برنامه‌ای اضافه نشده است.',
+    noExercises: 'هنوز تمرینی اضافه نشده است.',
+    noRecords: 'هنوز رکوردی ثبت نشده است.',
+    noEvents: 'هیچ جلسه‌ای برنامه‌ریزی نشده است.',
+    selectClientHelper: 'برای مشاهده و ثبت پیشرفت، مراجعه‌کننده را انتخاب کنید:'
   }
 };
+
+function getDict() {
+  return translations[state.settings.language] || translations.en;
+}
+
+function generateId(prefix) {
+  if (window.crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
+function migrateState() {
+  const indexToId = new Map();
+  state.clients = state.clients.map((client, index) => {
+    if (!client.id) {
+      client.id = generateId('client');
+    }
+    indexToId.set(index, client.id);
+    return client;
+  });
+
+  state.progress = state.progress
+    .map(record => {
+      if (!record.clientId && typeof record.clientIndex === 'number') {
+        const clientId = indexToId.get(record.clientIndex);
+        return clientId ? { ...record, clientId } : null;
+      }
+      return record;
+    })
+    .filter(Boolean)
+    .map(({ clientIndex, ...rest }) => rest);
+
+  state.events = state.events
+    .map(event => {
+      if (!event.clientId && typeof event.clientIndex === 'number') {
+        const clientId = indexToId.get(event.clientIndex);
+        return clientId ? { ...event, clientId } : null;
+      }
+      return event;
+    })
+    .filter(Boolean)
+    .map(({ clientIndex, ...rest }) => rest);
+}
 
 // Helper to load saved state from localStorage
 function loadState() {
@@ -98,6 +154,7 @@ function loadState() {
   } catch (err) {
     console.error('Failed to load state:', err);
   }
+  migrateState();
   // Apply theme and language from settings
   applyTheme(state.settings.theme);
   applyLanguage(state.settings.language);
@@ -197,15 +254,17 @@ function applyLanguage(lang) {
     const lbl = document.querySelector(`label[for="${fieldId}"]`);
     if (lbl) lbl.textContent = labelMap[fieldId];
   }
+  const progressHelper = document.querySelector('label[for="progress-client-select"]');
+  if (progressHelper) {
+    progressHelper.textContent = dict.selectClientHelper;
+  }
   // Buttons
   const btnMap = {
     'client-form': dict.addClient,
     'program-form': dict.addProgram,
     'exercise-form': dict.addExercise,
     'progress-form': dict.recordProgress,
-    'calendar-form': dict.addSession,
-    'backup-btn': dict.backup,
-    'restore-btn': dict.restore
+    'calendar-form': dict.addSession
   };
   for (const formId in btnMap) {
     const form = document.getElementById(formId);
@@ -216,6 +275,10 @@ function applyLanguage(lang) {
       if (submitBtn) submitBtn.textContent = btnMap[formId];
     }
   }
+  const backupBtn = document.getElementById('backup-btn');
+  if (backupBtn) backupBtn.textContent = dict.backup;
+  const restoreBtn = document.getElementById('restore-btn');
+  if (restoreBtn) restoreBtn.textContent = dict.restore;
   // Settings headings and groups
   const settingGroups = document.querySelectorAll('#settings h3');
   if (settingGroups.length >= 3) {
@@ -254,11 +317,11 @@ function updateClientSelect(selectId) {
   select.innerHTML = '';
   const defaultOpt = document.createElement('option');
   defaultOpt.value = '';
-  defaultOpt.textContent = translations[state.settings.language].selectClient;
+  defaultOpt.textContent = getDict().selectClient;
   select.appendChild(defaultOpt);
-  state.clients.forEach((client, index) => {
+  state.clients.forEach((client) => {
     const opt = document.createElement('option');
-    opt.value = index;
+    opt.value = client.id;
     opt.textContent = client.name;
     select.appendChild(opt);
   });
@@ -268,6 +331,10 @@ function updateClientSelect(selectId) {
 function renderClients() {
   const container = document.getElementById('clients-list');
   container.innerHTML = '';
+  if (state.clients.length === 0) {
+    container.innerHTML = `<p class="muted">${getDict().noClients}</p>`;
+    return;
+  }
   state.clients.forEach((client, idx) => {
     const div = document.createElement('div');
     div.className = 'list-item';
@@ -276,10 +343,11 @@ function renderClients() {
     delBtn.textContent = '×';
     delBtn.title = 'Delete';
     delBtn.addEventListener('click', () => {
-      state.clients.splice(idx, 1);
+      const clientId = client.id;
+      state.clients = state.clients.filter(existing => existing.id !== clientId);
       // remove associated progress and events referencing this client
-      state.progress = state.progress.filter(p => p.clientIndex !== idx);
-      state.events = state.events.filter(e => e.clientIndex !== idx);
+      state.progress = state.progress.filter(p => p.clientId !== clientId);
+      state.events = state.events.filter(e => e.clientId !== clientId);
       saveState();
       renderClients();
       updateClientSelect('progress-client-select');
@@ -295,6 +363,10 @@ function renderClients() {
 function renderPrograms() {
   const container = document.getElementById('programs-list');
   container.innerHTML = '';
+  if (state.programs.length === 0) {
+    container.innerHTML = `<p class="muted">${getDict().noPrograms}</p>`;
+    return;
+  }
   state.programs.forEach((program, idx) => {
     const div = document.createElement('div');
     div.className = 'list-item';
@@ -315,6 +387,10 @@ function renderPrograms() {
 function renderExercises() {
   const container = document.getElementById('exercises-list');
   container.innerHTML = '';
+  if (state.exercises.length === 0) {
+    container.innerHTML = `<p class="muted">${getDict().noExercises}</p>`;
+    return;
+  }
   state.exercises.forEach((exercise, idx) => {
     const div = document.createElement('div');
     div.className = 'list-item';
@@ -335,11 +411,14 @@ function renderExercises() {
 function renderProgressRecords() {
   const container = document.getElementById('progress-records');
   container.innerHTML = '';
-  const clientIndex = parseInt(document.getElementById('progress-client-select').value);
-  if (isNaN(clientIndex)) return;
-  const records = state.progress.filter(r => r.clientIndex === clientIndex);
+  const clientId = document.getElementById('progress-client-select').value;
+  if (!clientId) {
+    container.innerHTML = `<p class="muted">${getDict().noRecords}</p>`;
+    return;
+  }
+  const records = state.progress.filter(r => r.clientId === clientId);
   if (records.length === 0) {
-    container.textContent = 'No records yet';
+    container.innerHTML = `<p class="muted">${getDict().noRecords}</p>`;
     return;
   }
   const table = document.createElement('table');
@@ -365,13 +444,13 @@ function renderEvents() {
   const container = document.getElementById('calendar-events');
   container.innerHTML = '';
   if (state.events.length === 0) {
-    container.textContent = 'No events scheduled';
+    container.innerHTML = `<p class="muted">${getDict().noEvents}</p>`;
     return;
   }
   state.events.forEach((event, idx) => {
     const div = document.createElement('div');
     div.className = 'list-item';
-    const clientName = state.clients[event.clientIndex]?.name || '';
+    const clientName = state.clients.find(client => client.id === event.clientId)?.name || '';
     div.innerHTML = `<span>${event.date}: ${clientName} - ${event.note || ''}</span>`;
     const delBtn = document.createElement('button');
     delBtn.textContent = '×';
@@ -396,7 +475,7 @@ function setupForms() {
     const age = document.getElementById('client-age').value;
     const weight = document.getElementById('client-weight').value;
     if (!name) return;
-    state.clients.push({ name, age, weight });
+    state.clients.push({ id: generateId('client'), name, age, weight });
     saveState();
     clientForm.reset();
     renderClients();
@@ -431,26 +510,27 @@ function setupForms() {
   const progressForm = document.getElementById('progress-form');
   progressForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const clientIndex = parseInt(document.getElementById('progress-client-select').value);
-    if (isNaN(clientIndex)) return;
+    const clientId = document.getElementById('progress-client-select').value;
+    if (!clientId) return;
     const date = document.getElementById('progress-date').value;
     const weight = document.getElementById('progress-weight').value;
     if (!date) return;
-    state.progress.push({ clientIndex, date, weight });
+    state.progress.push({ clientId, date, weight });
     saveState();
     progressForm.reset();
     renderProgressRecords();
   });
+  document.getElementById('progress-client-select').addEventListener('change', renderProgressRecords);
   // Calendar form
   const calendarForm = document.getElementById('calendar-form');
   calendarForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const clientIndex = parseInt(document.getElementById('calendar-client').value);
-    if (isNaN(clientIndex)) return;
+    const clientId = document.getElementById('calendar-client').value;
+    if (!clientId) return;
     const date = document.getElementById('calendar-date').value;
     const note = document.getElementById('calendar-note').value.trim();
     if (!date) return;
-    state.events.push({ clientIndex, date, note });
+    state.events.push({ clientId, date, note });
     saveState();
     calendarForm.reset();
     renderEvents();
@@ -474,6 +554,7 @@ function setupForms() {
       try {
         const data = JSON.parse(ev.target.result);
         state = data;
+        migrateState();
         applyTheme(state.settings.theme);
         applyLanguage(state.settings.language);
         saveState();
@@ -507,4 +588,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupTheme();
   setupLanguage();
   renderAll();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch((err) => {
+      console.error('Service worker registration failed:', err);
+    });
+  }
 });
